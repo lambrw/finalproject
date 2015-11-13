@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--  -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Lamb D3</title>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+		<style type="text/css">
+			
+		
+			div.bar {
+				display: inline-block;
+				width: 20px;
+				background-color: teal;
+				margin-right: 2px;
+			}
+		
+		
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: black;
+				shape-rendering: crispEdges;
+			}
+			
+			.axis text {
+				font-family: sans-serif;
+				font-size: 11px;
+			}
+
+		</style>
+	</head>
+	<body>
+	
+<h2> Robbie's Kickass Data Graphics </h2>
+
+	<p>
+A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/src/fc4e271cdbe847d0e12259496b13d8b503e7663c/comm_struc_plates.csv?at=master&fileviewer=file-view-default"> my data </a> from summer 2015 looking at the percent cover and abundance of different species of benthic organisms that grew on plastic plates over a two-month period.</a>. 
+
+	</p>
+
+	<h2> Do any of the species observed vary by exposure, treatment, and site? </h2>
+
+		
+		<script type="text/javascript">
+			
+
+			plate_cover_path = "https://bitbucket.org/robert_lamb/research_scripts/raw/a0e1c4b9ab551d72e7588276529ae728d69c4595/comm_struc_plates.csv"
+
+			// If the link doesn't work, here's the path to the csv file on Robbie's computer 
+			// d3.csv("comm_struc_plates.csv", function (data){
+
+			var dataset;
+			
+			d3.csv(plate_cover_path, function(data){
+
+				var colors = { "Camano":"blue", "Las Palmas":"red"}
+
+				var dataset = data.map(function(d){
+									//return [d.Date_Deployed,	d.Date_retreived,	d.Site,	d.Exposure,	d.Treatment,	d.Replicate,	d.Plate,	d.Anemone,	d.Art_coral,	d.Blank,	d.Bryopsis,	d.Bryozoan,	d.Cal_poly,	d.Ceramium,	d.Cladophora,	d.CCA,	d.Diatom,	d.Hildenbrandia,	d.Hydroid,	d.Hypnea,	d.Lobophora,	d.Megabalanus,	d.Polysiphonia,	d.Ralfsia,	d.Ulva,	d.Total,	d.Amphiphods,	d.Anachis,	d.Columbella,	d.Crabs,	d.Isopod,	d.Littorina,	d.Shrimp,	d.Snail_spp,	d.Ophiura,	d.Limpet,	d.Notes,	d.Notes_2,	d.Months]
+									// return d; for full dataset
+				return d.Littorina;
+
+				});
+
+				
+				var extras = ["Date_Deployed",	"Date_retreived",	"Replicate",	"Plate", "Total", "Notes",	"Notes_2",	"Months"]
+
+				var descriptors = ["Site",	"Exposure",	"Treatment"]
+
+				var columns =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
+
+				var nems=["Anemone"];
+
+				//Create an element for each datapoint; the text below creates bars
+
+				//d3.select("body")
+				//.selectAll("div")
+				//.data(dataset)
+				//.enter()
+				//.append("div")
+				//.attr("class","bar")
+				//.style("height", function(d) {
+					//return d + "px";
+				//.text(function(d){
+				//	return "I can count up to " + d; 
+				//});
+
+				
+
+				var xcol=descriptors[0];
+				var ycol=columns[0];
+
+			//width and height
+
+
+				var w = 1000;
+				var h = 400;
+				var barPadding = 1;
+
+				//Create an svg variable
+
+				var svg = d3.select("body")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h)
+
+
+				//reference svg to create bars
+
+				svg.selectAll("rect")
+				.data(dataset)
+				.enter()
+				.append("rect")
+				.attr("x", function(d,i){
+					return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+				})
+				.attr("y", function(d){
+					return h-(d*4);
+				})
+				.attr("fill","red")
+				.attr("width", w/dataset.length - barPadding)
+				.attr("height", function(d){
+					return d*4;
+				});
+
+
+
+				//create scale functions
+
+				var xScale = d3.scale.ordinal()
+					.domain ([0, d3.max(dataset)])
+
+				 console.log(dataset);   //Log the data.
+				
+
+					});
+		</script>
+	</body>
+</html>
+
