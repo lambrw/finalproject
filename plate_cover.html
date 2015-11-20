@@ -50,27 +50,26 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 			// If the link doesn't work, here's the path to the csv file on Robbie's computer 
 			// d3.csv("comm_struc_plates.csv", function (data){
 
-			var dataset;
+			//var dataset;
 			
 			d3.csv(plate_cover_path, function(data){
 
-				var colors = { "Camano":"blue", "Las Palmas":"red"}
+				
 
 				var dataset = data.map(function(d){
-									//return [d.Date_Deployed,	d.Date_retreived,	d.Site,	d.Exposure,	d.Treatment,	d.Replicate,	d.Plate,	d.Anemone,	d.Art_coral,	d.Blank,	d.Bryopsis,	d.Bryozoan,	d.Cal_poly,	d.Ceramium,	d.Cladophora,	d.CCA,	d.Diatom,	d.Hildenbrandia,	d.Hydroid,	d.Hypnea,	d.Lobophora,	d.Megabalanus,	d.Polysiphonia,	d.Ralfsia,	d.Ulva,	d.Total,	d.Amphiphods,	d.Anachis,	d.Columbella,	d.Crabs,	d.Isopod,	d.Littorina,	d.Shrimp,	d.Snail_spp,	d.Ophiura,	d.Limpet,	d.Notes,	d.Notes_2,	d.Months]
-									// return d; for full dataset
-				return d.Littorina;
+									
+				return d;
 
 				});
 
 				
+				var colors = { "Camano":"blue", "Las Palmas":"red"}
 				var extras = ["Date_Deployed",	"Date_retreived",	"Replicate",	"Plate", "Total", "Notes",	"Notes_2",	"Months"]
 
 				var descriptors = ["Site",	"Exposure",	"Treatment"]
 
 				var columns =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
 
-				var nems=["Anemone"];
 
 				//Create an element for each datapoint; the text below creates bars
 
@@ -94,6 +93,8 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 			//width and height
 
 
+				var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange"
+				}
 				var w = 1000;
 				var h = 400;
 				var barPadding = 1;
@@ -116,12 +117,14 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 					return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
 				})
 				.attr("y", function(d){
-					return h-(d*4);
+					return h-(d["Ulva"]*4);
 				})
-				.attr("fill","red")
+				.attr("fill", function (d) {
+					return colors[d['Treatment']];
+				})
 				.attr("width", w/dataset.length - barPadding)
 				.attr("height", function(d){
-					return d*4;
+					return d["Ulva"]*4;
 				});
 
 
