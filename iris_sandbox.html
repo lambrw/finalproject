@@ -4,6 +4,13 @@
 	<head>
 		<meta charset="utf-8">
 		<title>D3: Anderson's Iris Scatterplot</title>
+		
+		<!--
+
+		 this link removes the need for linking to the d3 source file in your computer
+
+		 -->
+
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 		<style type="text/css">
 			
@@ -18,6 +25,7 @@
 				font-family: sans-serif;
 				font-size: 11px;
 			}
+
 		</style>
 	</head>
 	<body>
@@ -56,23 +64,28 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 
 	
 		<script type="text/javascript">
-			iris_path = "https://bitbucket.org/caseywdunn/data_interaction/raw/master/exercises/iris/iris.csv"
+			iris_path = "https://bitbucket.org/robert_lamb/research_scripts/raw/258d63740d2bb62ec1f55ba01b1be42fbb3124b9/iris.csv"
 			d3.csv(iris_path, function(data){
 				
 				var colors = { "virginica":"blue", "versicolor":"red", "setosa":"green" }
+
 				var dataset = data.map(function(d) { 
 					// Manipulations of data (eg transforms, retyping) go here
 					return d;
 				});
+
 				// Set up the axis selection
 				var columns=["SepalLength", "SepalWidth", "PetalLength", "PetalWidth"];
-				d3.select("#xaxis").selectAll("li")
+
+				d3.select("#xaxis")
+				.selectAll("li")
     			.data(columns)
     			.enter()
     			.append("li")
     			.text(function(d) { return d; })
     			.attr("class", "xselect")
     			.attr("id", function(d) { return ("x" + d); });
+
     			d3.select("#yaxis").selectAll("li")
     			.data(columns)
     			.enter()
@@ -80,36 +93,49 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
     			.text(function(d) { return d; })
     			.attr("class", "yselect")
     			.attr("id", function(d) { return ("y" + d); });
+
     			var xcol = columns[0];
     			var ycol = columns[1];
+
     			update_axes();
+
+
 				//Width and height
 				var w = 500;
 				var h = 300;
 				var padding = 30;
+
+
 				//Create scale functions
 				var xScale = d3.scale.linear()
 									 .domain([0, d3.max(dataset, function(d) { return d[xcol]; })])
 									 .range([padding, w - padding * 2]);
+
 				var yScale = d3.scale.linear()
 									 .domain([0, d3.max(dataset, function(d) { return d[ycol]; })])
 									 .range([h - padding, padding]);
+
 				//Define X axis
 				var xAxis = d3.svg.axis()
 								  .scale(xScale)
 								  .orient("bottom")
 								  .ticks(5);
 								  
+
+
 				//Define Y axis
 				var yAxis = d3.svg.axis()
 								  .scale(yScale)
 								  .orient("left")
 								  .ticks(5);
+
+
 				//Create SVG element
 				var svg = d3.select("body")
 							.append("svg")
 							.attr("width", w)
 							.attr("height", h);
+
 				//Create circles
 				svg.selectAll("circle")
 				   .data(dataset)
@@ -137,19 +163,25 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 					.attr("class", "y axis")
 					.attr("transform", "translate(" + padding + ",0)")
 					.call(yAxis);
+
 				function update_axes() {
 					 d3.selectAll("li")
 					 	.style("color", "black");
+
 					 d3.select("#x" + xcol)
 					 	.style("color", "red");
+
 					 d3.select("#y" + ycol)
 					 	.style("color", "red");
 				}
+
+
 				function redraw_plot() {
 					//console.log("redrawing plot: ", + xcol, ", " + ycol);
 					//Update scale domains
 					xScale.domain([0, d3.max(dataset, function(d) { return d[xcol]; })]);
 					yScale.domain([0, d3.max(dataset, function(d) { return d[ycol]; })]);
+
 					//Update all circles
 					svg.selectAll("circle")
 					   .data(dataset)
@@ -161,6 +193,7 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 					   .attr("cy", function(d) {
 					   		return yScale(d[ycol]);
 					   });
+
 					//Update X axis
 					svg.select(".x.axis")
 				    	.transition()
@@ -173,6 +206,7 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 				    	.duration(1000)
 						.call(yAxis);
 				};
+
 				//On click, update with new data			
 				d3.selectAll(".xselect")
 					.on("click", function(d) {
@@ -181,6 +215,7 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 						redraw_plot();
 						update_axes();
 					});
+
 				//On click, update with new data			
 				d3.selectAll(".yselect")
 					.on("click", function(d) {
@@ -188,8 +223,13 @@ write.csv(D, file = "iris.csv", row.names = FALSE)
 						ycol = d;
 						redraw_plot();
 						update_axes();
+
 					});
 			});
+
+
+
+
 		</script>
 	</body>
 </html>
