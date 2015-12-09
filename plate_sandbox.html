@@ -6,14 +6,6 @@
 		<title>Lamb D3</title>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 		<style type="text/css">
-			
-		
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				background-color: teal;
-				margin-right: 2px;
-			}
 		
 		
 			.axis path,
@@ -40,6 +32,18 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 	</p>
 
 	<h2> Do any of the species observed vary by exposure, treatment, and site? </h2>
+
+	<p>
+	<h3> X axis </h3>
+	<ul id="xaxis">
+	</ul>
+	</p>
+
+	<p>
+	<h3>Y axis </h3>
+	<ul id="yaxis">
+	</ul>
+	</p>
 
 		
 		<script type="text/javascript">
@@ -68,24 +72,28 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 
 				var descriptors = ["Site",	"Exposure",	"Treatment"]
 
+//Set up species selection
+
 				var species =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
 
+//select x axis to correspond to each different species as desired
 
-				//Create an element for each datapoint; the text below creates bars
+			d3.select("#xaxis")
+				.selectAll("li")
+    			.data(descriptors)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d; })
+    			.attr("class", "xselect")
+    			.attr("id", function(d) { return ("x" + d); });
 
-				//d3.select("body")
-				//.selectAll("div")
-				//.data(dataset)
-				//.enter()
-				//.append("div")
-				//.attr("class","bar")
-				//.style("height", function(d) {
-					//return d + "px";
-				//.text(function(d){
-				//	return "I can count up to " + d; 
-				//});
-
-
+    			d3.select("#yaxis").selectAll("li")
+    			.data(species)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d; })
+    			.attr("class", "yselect")
+    			.attr("id", function(d) { return ("y" + d); });
 //width and height
 
 
@@ -95,30 +103,49 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				var h = 400;
 				var barPadding = 1;
 
+				 //Set variables to encompass predictive data
+
+
+				var xcol=descriptors[1]
+				var ycol=species[1];
+
+				update_axes();
+
+			
+
+//Set scale functions 
+
+
+				var xScale = d3.scale.ordinal()
+                     .domain([function(d) { return d[xcol]; }])
+                     .rangeBands([0, 50]);
+
+                var yScale = d3.scale.linear()
+                     .domain([0, 1])//d3.max(dataset, function(d) { return d[ycol]; })])
+                     .range([0, h]);
+
+                     		//Define X axis
+				var xAxis = d3.svg.axis()
+								  .scale(xScale)
+								  .orient("bottom")
+								  .ticks(5);
+								  
+
+
+				//Define Y axis
+				var yAxis = d3.svg.axis()
+								  .scale(yScale)
+								  .orient("left")
+								  .ticks(5);
+
+               
+
 				//Create an svg variable
 
 				var svg = d3.select("body")
 				.append("svg")
 				.attr("width", w)
 				.attr("height", h)
-
-//Set scale functions 
-
-
-				var xScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset, function(d) { return d.Ulva; })])
-                     .range([0, w]);
-
-                var yScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset, function(d) { return d.Ulva; })])
-                     .range([0, h]);
-                //Set variables to encompass predictive data
-
-
-				var xcol=descriptors[0];
-				var ycol=species[0];
-
-			
 
 				
 
@@ -129,25 +156,103 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				.data(dataset)
 				.enter()
 				.append("rect")
-				.attr("x", function(d,i){
-					return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+				.attr("x", function(d){
+					return (w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
 				})
 				.attr("y", function(d){
-					return h-yScale(d.Ulva);
+					return h-yScale(d[ycol]);
 				})
 				.attr("fill", function (d) {
 					return colors[d['Treatment']];
 				})
-				.attr("width", w/dataset.length - barPadding)
+				.attr("width", function(d){
+					return (w/dataset.length - barPadding)
+				})
 				.attr("height", function(d){
-					return yScale(d.Ulva);
+					return yScale(d[ycol]);
 				});
 
 
 
-				//create scale functions
-
+	//Create X axis
+				svg.append("g")
+					.attr("class", "x axis")
+					.attr("transform", "translate(0," + (h - barPadding) + ")")
+					.call(xAxis);
 				
+				//Create Y axis
+				svg.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(" + barPadding + ",0)")
+					.call(yAxis);
+
+				function update_axes() {
+					 d3.selectAll("li")
+					 	.style("color", "black");
+
+					 d3.select("#y" + ycol)
+					 	.style("color", "red");
+				}
+
+				function redraw_plot() {
+					//console.log("redrawing plot: ", + xcol, ", " + ycol);
+					//Update scale domains
+					xScale.domain([0, d3.max(dataset, function(d) { return d[xcol]; })]);
+					yScale.domain([0, d3.max(dataset, function(d) { return d[ycol]; })]);
+
+					//Update all bars
+					svg.selectAll("rect")
+					   .data(dataset)
+					   .transition()
+					   .duration(1000)		
+					   .attr("x", function(d){
+						return (w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+							})
+						.attr("y", function(d){
+						return h-yScale(d[ycol]);
+				})
+						.attr("fill", function (d) {
+						return colors[d['Treatment']];
+							})
+						.attr("width", function (d){
+						return	(w/dataset.length - barPadding)
+						})
+						.attr("height", function(d){
+						return yScale(d[ycol]);
+				})
+
+					//Update X axis
+					svg.select(".x.axis")
+				    	.transition()
+				    	.duration(1000)
+						.call(xAxis);
+					
+					//Update Y axis
+					svg.select(".y.axis")
+				    	.transition()
+				    	.duration(1000)
+						.call(yAxis);
+					};
+				
+
+				//On click, update with new data			
+				d3.selectAll(".xselect")
+					.on("click", function(d) {
+						console.log(d)
+						xcol = d;
+						redraw_plot();
+						update_axes();
+					});
+
+				//On click, update with new data			
+				d3.selectAll(".yselect")
+					.on("click", function(d) {
+						console.log(d)
+						ycol = d;
+						redraw_plot();
+						update_axes();
+
+					});
 
 				 console.log(dataset);   //Log the data.
 				
