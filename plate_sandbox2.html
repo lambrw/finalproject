@@ -5,15 +5,9 @@
 		<meta charset="utf-8">
 		<title>Lamb D3</title>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
-		<style type="text/css">
-			
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/2.5.0/math.min.js"></script>
 		
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				background-color: teal;
-				margin-right: 2px;
-			}
+		<style type="text/css">
 		
 		
 			.axis path,
@@ -41,12 +35,21 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 
 	<h2> Do any of the species observed vary by exposure, treatment, and site? </h2>
 
-	
+	<p>
+	<h3> X axis </h3>
+	<ul id="xaxis">
+	</ul>
+	</p>
+
+	<p>
+	<h3>Y axis </h3>
+	<ul id="yaxis">
+	</ul>
+	</p>
 
 		
 		<script type="text/javascript">
 			
-
 			plate_cover_path = "https://bitbucket.org/robert_lamb/research_scripts/raw/a0e1c4b9ab551d72e7588276529ae728d69c4595/comm_struc_plates.csv"
 
 			// If the link doesn't work, here's the path to the csv file on Robbie's computer 
@@ -68,34 +71,88 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				var sites = { "Camano":"blue", "Las Palmas":"red"}
 				var extras = ["Date_Deployed",	"Date_retreived",	"Replicate",	"Plate", "Total", "Notes",	"Notes_2",	"Months"]
 
-				var descriptors = ["Site",	"Exposure",	"Treatment"]
+				var descriptors = ["Site",	"Exposure",	"Treatment"];
+
+//Set up species selection
 
 				var species =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
 
-
-				//Create an element for each datapoint; the text below creates bars
-
-				//d3.select("body")
-				//.selectAll("div")
-				//.data(dataset)
-				//.enter()
-				//.append("div")
-				//.attr("class","bar")
-				//.style("height", function(d) {
-					//return d + "px";
-				//.text(function(d){
-				//	return "I can count up to " + d; 
-				//});
+//select x axis to correspond to each species
 
 
-//width and height
+			d3.select("#xaxis")
+				.selectAll("li")
+    			.data(species)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d; })
+    			.attr("class", "xselect")
+    			.attr("id", function(d) { return ("x" + d); });
+//select y axis to correspond to each different species as desired
+
+    		d3.select("#yaxis")
+    			.selectAll("li")
+    			.data(species)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d; })
+    			.attr("class", "yselect")
+    			.attr("id", function(d) { return ("y" + d); });
 
 
-				var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange"
+
+//set colors to match experimental treatment
+
+var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "Exposed":"purple", "Protected":"yellow", "Las Palmas":"Black", "Camano":"red"
 				}
+
+			//list of colors for treatments:	var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange"
+				//}
+
+				//width and height
+
 				var w = 1000;
 				var h = 400;
+				var padding=40;
 				var barPadding = 1;
+
+				 //Set variables to encompass predictive data and species data
+
+
+				var xcol=species[0]
+				var ycol=species[0];
+				var zcol=descriptors[0];
+
+				update_axes();
+
+			
+
+//Set scale functions 
+
+
+				var xScale = d3.scale.ordinal()
+                     .domain([function(d) { return species; }])
+                     .range([padding, w-padding]);
+
+                var yScale = d3.scale.linear()
+                     .domain([0, 100])//d3.max(dataset, function(d) { return d[ycol]; })])
+                     .range([h-padding, padding]);
+
+                     		//Define X axis
+				var xAxis = d3.svg.axis()
+								  .scale(xScale)
+								  .orient("bottom")
+								  .ticks(5);
+								  
+
+
+				//Define Y axis
+				var yAxis = d3.svg.axis()
+								  .scale(yScale)
+								  .orient("left")
+								  .ticks(5);
+
+               
 
 				//Create an svg variable
 
@@ -103,24 +160,6 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				.append("svg")
 				.attr("width", w)
 				.attr("height", h)
-
-//Set scale functions 
-
-
-				var xScale = d3.scale.linear()
-                     .domain([0, function(d) { return length(d.Ulva); }])
-                     .range([0, w]);
-
-                var yScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset, function(d) { return d.Ulva; })])
-                     .range([0, h]);
-                //Set variables to encompass predictive data
-
-
-				var xcol=descriptors[0];
-				var ycol=species[0];
-
-			
 
 				
 
@@ -135,21 +174,102 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 					return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
 				})
 				.attr("y", function(d){
-					return h-yScale(d.Ulva);
+					return math.mean(yScale(d[ycol]));
 				})
 				.attr("fill", function (d) {
-					return colors[d['Treatment']];
+					return colors[d["Treatment"]];
 				})
-				.attr("width", w/dataset.length - barPadding)
+				.attr("width", function(d){
+					return (w/dataset.length - barPadding)
+				})
 				.attr("height", function(d){
-					return yScale(d.Ulva);
+					return math.mean(yScale(d[ycol]));
 				});
 
 
 
-				//create scale functions
-
+	//Create X axis
+				svg.append("g")
+					.attr("class", "x axis")
+					.attr("transform", "translate(0," + (h - padding) + ")")
+					.call(xAxis);
 				
+				//Create Y axis
+				svg.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(" + padding + ",0)")
+					.call(yAxis);
+
+				function update_axes() {
+					 d3.selectAll("li")
+					 	.style("color", "black");
+
+					 d3.select("#x" + xcol)
+					 .style("color", "red");
+
+					 d3.select("#y" + ycol)
+					 	.style("color", "red");
+				}
+
+				function redraw_plot() {
+					//console.log("redrawing plot: ", + xcol, ", " + ycol);
+					//Update scale domains
+					xScale.domain([0, function(d) { return dataset.length}]);
+					yScale.domain([0, 100]);//d3.max(dataset, function(d) { return d[ycol]; })]);
+
+					//Update all bars
+					svg.selectAll("rect")
+					   .data(dataset)
+					   .transition()
+					   .duration(1000)		
+					   .attr("x", function(d,i){
+						return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+							})
+						.attr("y", function(d){
+						return math.mean(yScale(d[ycol]));
+				})
+						.attr("fill", function (d) {
+						return colors[d["Treatment"]];
+							})
+						.attr("width", function (d){
+						return	(w/dataset.length - barPadding)
+						})
+						.attr("height", function(d){
+						return math.mean(yScale(d[ycol]));
+				})
+
+					//Update X axis
+					svg.select(".x.axis")
+				    	.transition()
+				    	.duration(1000)
+						.call(xAxis);
+					
+					//Update Y axis
+					svg.select(".y.axis")
+				    	.transition()
+				    	.duration(1000)
+						.call(yAxis);
+					};
+				
+
+				//On click, update with new data			
+				d3.selectAll(".xselect")
+					.on("click", function(d) {
+						console.log(d)
+						xcol = d;
+						redraw_plot();
+						update_axes();
+					});
+
+				//On click, update with new data			
+				d3.selectAll(".yselect")
+					.on("click", function(d) {
+						console.log(d)
+						ycol = d;
+						redraw_plot();
+						update_axes();
+
+					});
 
 				 console.log(dataset);   //Log the data.
 				

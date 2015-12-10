@@ -132,7 +132,7 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
                      .range([0, w]);
 
                 var yScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset, function(d) { return d[ycol]; })])
+                     .domain([0, 100])//d3.max(dataset, function(d) { return d[ycol]; })])
                      .range([0, h]);
 
                      		//Define X axis
@@ -212,7 +212,7 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 					//console.log("redrawing plot: ", + xcol, ", " + ycol);
 					//Update scale domains
 					xScale.domain([0, function(d) { return dataset.length}]);
-					yScale.domain([0, d3.max(dataset, function(d) { return d[ycol]; })]);
+					yScale.domain([0, 100]);//d3.max(dataset, function(d) { return d[ycol]; })]);
 
 					//Update all bars
 					svg.selectAll("rect")
