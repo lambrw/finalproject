@@ -70,13 +70,14 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				var sites = { "Camano":"blue", "Las Palmas":"red"}
 				var extras = ["Date_Deployed",	"Date_retreived",	"Replicate",	"Plate", "Total", "Notes",	"Notes_2",	"Months"]
 
-				var descriptors = ["Site",	"Exposure",	"Treatment"]
+				var descriptors = ["Site",	"Exposure",	"Treatment"];
 
 //Set up species selection
 
 				var species =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
 
-//select x axis to correspond to each different species as desired
+//select x axis to correspond to each different predictive site variable as desired
+
 
 			d3.select("#xaxis")
 				.selectAll("li")
@@ -86,28 +87,38 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
     			.text(function(d) { return d; })
     			.attr("class", "xselect")
     			.attr("id", function(d) { return ("x" + d); });
+//select y axis to correspond to each different species as desired
 
-    			d3.select("#yaxis").selectAll("li")
+    			d3.select("#yaxis")
+    			.selectAll("li")
     			.data(species)
     			.enter()
     			.append("li")
     			.text(function(d) { return d; })
     			.attr("class", "yselect")
     			.attr("id", function(d) { return ("y" + d); });
-//width and height
 
 
-				var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange"
+
+//set colors to match experimental treatment
+
+var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "Exposed":"purple", "Protected":"yellow", "Las Palmas":"Black", "Camano":"red"
 				}
+
+			//list of colors for treatments:	var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange"
+				//}
+
+				//width and height
+
 				var w = 1000;
 				var h = 400;
 				var barPadding = 1;
 
-				 //Set variables to encompass predictive data
+				 //Set variables to encompass predictive data and species data
 
 
-				var xcol=descriptors[1]
-				var ycol=species[1];
+				var xcol=descriptors[0]
+				var ycol=species[0];
 
 				update_axes();
 
@@ -117,11 +128,11 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 
 
 				var xScale = d3.scale.ordinal()
-                     .domain([function(d) { return d[xcol]; }])
-                     .rangeBands([0, 50]);
+                     .domain([function(d) { return dataset.length; }])
+                     .range([0, w]);
 
                 var yScale = d3.scale.linear()
-                     .domain([0, 1])//d3.max(dataset, function(d) { return d[ycol]; })])
+                     .domain([0, d3.max(dataset, function(d) { return d[ycol]; })])
                      .range([0, h]);
 
                      		//Define X axis
@@ -156,14 +167,14 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				.data(dataset)
 				.enter()
 				.append("rect")
-				.attr("x", function(d){
-					return (w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+				.attr("x", function(d,i){
+					return i*(w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
 				})
 				.attr("y", function(d){
 					return h-yScale(d[ycol]);
 				})
 				.attr("fill", function (d) {
-					return colors[d['Treatment']];
+					return colors[d[xcol]];
 				})
 				.attr("width", function(d){
 					return (w/dataset.length - barPadding)
@@ -190,6 +201,9 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 					 d3.selectAll("li")
 					 	.style("color", "black");
 
+					 d3.select("#x" + xcol)
+					 .style("color", "red");
+
 					 d3.select("#y" + ycol)
 					 	.style("color", "red");
 				}
@@ -197,7 +211,7 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 				function redraw_plot() {
 					//console.log("redrawing plot: ", + xcol, ", " + ycol);
 					//Update scale domains
-					xScale.domain([0, d3.max(dataset, function(d) { return d[xcol]; })]);
+					xScale.domain([0, function(d) { return dataset.length}]);
 					yScale.domain([0, d3.max(dataset, function(d) { return d[ycol]; })]);
 
 					//Update all bars
@@ -205,14 +219,14 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 					   .data(dataset)
 					   .transition()
 					   .duration(1000)		
-					   .attr("x", function(d){
-						return (w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
+					   .attr("x", function(d,i){
+						return (i*w/dataset.length-barPadding) //bar width of 20 plus 1 for padding
 							})
 						.attr("y", function(d){
 						return h-yScale(d[ycol]);
 				})
 						.attr("fill", function (d) {
-						return colors[d['Treatment']];
+						return colors[d[xcol]];
 							})
 						.attr("width", function (d){
 						return	(w/dataset.length - barPadding)
