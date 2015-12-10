@@ -82,7 +82,7 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 
 			d3.select("#xaxis")
 				.selectAll("li")
-    			.data(species)
+    			.data(descriptors)
     			.enter()
     			.append("li")
     			.text(function(d) { return d; })
@@ -119,9 +119,9 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 				 //Set variables to encompass predictive data and species data
 
 
-				var xcol=species[0]
+				var zcol=species[0]
 				var ycol=species[0];
-				var zcol=descriptors[0];
+				var xcol=descriptors[0];
 
 				update_axes();
 
@@ -131,8 +131,8 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 
 
 				var xScale = d3.scale.ordinal()
-                     .domain([function(d) { return species; }])
-                     .range([padding, w-padding]);
+                     .domain([function(d) { return d[xcol]; }])
+                     .rangeBands(padding, w+padding);
 
                 var yScale = d3.scale.linear()
                      .domain([0, 100])//d3.max(dataset, function(d) { return d[ycol]; })])
@@ -214,7 +214,7 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 				function redraw_plot() {
 					//console.log("redrawing plot: ", + xcol, ", " + ycol);
 					//Update scale domains
-					xScale.domain([0, function(d) { return dataset.length}]);
+					xScale.domain([function(d) { return d[xcol]; }]);
 					yScale.domain([0, 100]);//d3.max(dataset, function(d) { return d[ycol]; })]);
 
 					//Update all bars

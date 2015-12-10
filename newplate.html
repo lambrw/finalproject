@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lamb D3</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/2.5.0/math.min.js"></script>
+    
+    <style type="text/css">
+    
+    
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+      
+      .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+      }
+
+    </style>
+  </head>
+  <body>
+  
+<h2> Robbie's Kickass Data Graphics </h2>
+
+  <p>
+A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/src/fc4e271cdbe847d0e12259496b13d8b503e7663c/comm_struc_plates.csv?at=master&fileviewer=file-view-default"> my data </a> from summer 2015 looking at the percent cover and abundance of different species of benthic organisms that grew on plastic plates over a two-month period.</a>. 
+
+  </p>
+
+  <h2> Do any of the species observed vary by exposure, treatment, and site? </h2>
+
+  <p>
+  <h3> X axis </h3>
+  <ul id="xaxis">
+  </ul>
+  </p>
+
+  <p>
+  <h3>Y axis </h3>
+  <ul id="yaxis">
+  </ul>
+  </p>
+
+    
+    <script type="text/javascript">
+
+    var width = 960,
+        height = 500;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var chart = d3.select(".chart")
+        .attr("width", width)
+        .attr("height", height);
+
+        plate_cover_path = "https://bitbucket.org/robert_lamb/research_scripts/raw/a0e1c4b9ab551d72e7588276529ae728d69c4595/comm_struc_plates.csv"
+
+      // If the link doesn't work, here's the path to the csv file on Robbie's computer 
+      // d3.csv("comm_struc_plates.csv", function (data){
+
+      //var dataset;
+      
+      d3.csv(plate_cover_path, function(data){
+
+        
+
+        var dataset = data.map(function(d){
+                  
+        return d.Ulva;
+
+        });
+
+
+      x.domain(data.map(function(d) { return d.name; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+    var bar = chart.selectAll("g")
+      .data(data)
+      .enter().append("g")
+      .attr("transform", function(d) { return "translate(" + x(d.name) + ",0)"; });
+
+    bar.append("rect")
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height - y(d.value); })
+      .attr("width", x.rangeBand());
+
+    bar.append("text")
+      .attr("x", x.rangeBand() / 2)
+      .attr("y", function(d) { return y(d.value) + 3; })
+      .attr("dy", ".75em")
+      .text(function(d) { return d.value; });
+});
+
+function type(d) {
+  d.value = +d.value; // coerce to number
+  return d;
+}
+
+</script>
