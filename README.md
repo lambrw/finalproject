@@ -5,7 +5,7 @@
 
 This is a final project for the [Interacting with Data](https://github.com/Brown-BIOL2430-S04-Fall2015/syllabus) seminar in fall 2015. This project examines marine community structure on experimental plates left out on rocky reefs in the Galapagos Islands over two months. These plates were bolted to the rock under cages intended to exert variable herbivore access. The goal is to provide an intuitive, interactive view of how marine life responds to variable herbivore pressures. 
 
-To view this project, click on the following [link](https://rawgit.com/lambrw/finalproject/master/plate_sandbox.html).
+To view this project, click on the following [link](https://rawgit.com/lambrw/finalproject/master/plate_sandbox.html). If this rawgit link does not work, you can also view it on my [webpage](http://www.witmanlab.com/robert-lamb.html).
 
 ## The data
 
