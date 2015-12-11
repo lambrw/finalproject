@@ -37,11 +37,11 @@ var x = d3.scale.ordinal()
 var y = d3.scale.linear()
     .range([height, 0]);
 
-var xAxis = d3.svg.axis()
+var xAxis2 = d3.svg.axis()
     .scale(x)
     .orient("bottom");
 
-var yAxis = d3.svg.axis()
+var yAxis2 = d3.svg.axis()
     .scale(y)
     .orient("left");
 
@@ -60,11 +60,11 @@ d3.csv(plate_cover_path, type, function(data) {
   chart.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+      .call(xAxis2);
 
-  chart.append("g")
+  chart.append( "g")
       .attr("class", "y axis")
-      .call(yAxis);
+      .call(yAxis2);
 
   chart.selectAll(".bar")
       .data(data)

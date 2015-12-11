@@ -5,6 +5,8 @@
 		<meta charset="utf-8">
 		<title>Lamb D3</title>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/2.5.0/math.min.js" charset="utf-8"></script>
+
 		<style type="text/css">
 		
 		
@@ -74,12 +76,12 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
 
 //Set up species selection
 
-				var species =["Anemone",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Ulva",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
+				var species =["Ulva",	"Art_coral",	"Blank",	"Bryopsis",	"Bryozoan",	"Cal_poly",	"Ceramium",	"Cladophora",	"CCA",	"Diatom",	"Hildenbrandia",	"Hydroid",	"Hypnea",	"Lobophora",	"Megabalanus",	"Polysiphonia",	"Ralfsia",	"Anemone",	"Amphiphods",	"Anachis",	"Columbella",	"Crabs",	"Isopod",	"Littorina",	"Shrimp",	"Snail_spp",	"Ophiura",	"Limpet"];
 
-//select x axis to correspond to each different predictive site variable as desired
+//select x axis 1 to correspond to each different predictive site variable as desired
 
 
-			d3.select("#xaxis")
+				d3.select("#xaxis")
 				.selectAll("li")
     			.data(descriptors)
     			.enter()
@@ -87,9 +89,31 @@ A visualization of <a href="https://bitbucket.org/robert_lamb/research_scripts/s
     			.text(function(d) { return d; })
     			.attr("class", "xselect")
     			.attr("id", function(d) { return ("x" + d); });
-//select y axis to correspond to each different species as desired
+//select y axis 1 to correspond to each different species as desired
 
     			d3.select("#yaxis")
+    			.selectAll("li")
+    			.data(species)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d; })
+    			.attr("class", "yselect")
+    			.attr("id", function(d) { return ("y" + d); });
+
+//select x axis 2 to correspond to each different predictive site variable as desired
+
+				d3.select("#xaxis2")
+				.selectAll("li")
+    			.data(descriptors)
+    			.enter()
+    			.append("li")
+    			.text(function(d) { return d[xcol]; })
+    			.attr("class", "xselect")
+    			.attr("id", function(d) { return ("x" + d[xcol]); });
+
+//select y axis 2 to correspond to each different species as desired
+
+    			d3.select("#yaxis2")
     			.selectAll("li")
     			.data(species)
     			.enter()
@@ -124,7 +148,7 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 
 			
 
-//Set scale functions 
+//Set axes and scale functions for chart 1
 
 
 				var xScale = d3.scale.ordinal()
@@ -149,9 +173,34 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 								  .orient("left")
 								  .ticks(5);
 
-               
 
-				//Create an svg variable
+// Set up axes and scales for chart 2
+
+				//x.domain(data.map(function(d) { return d[xcol]; }));
+ 				//y.domain([0, 100]);
+
+				var margin = {top: 20, right: 30, bottom: 30, left: 40},
+				    width = 960 - margin.left - margin.right,
+				    height = 500 - margin.top - margin.bottom;
+
+				var xScale2 = d3.scale.ordinal()
+					.domain(data.map(function(d) {return d[xcol];}))
+				    .rangeRoundBands([0, width], .1);
+
+				var yScale2 = d3.scale.linear()
+					.domain([0,100])
+				    .range([height, 0]);
+
+				var xAxis2 = d3.svg.axis()
+				    .scale(xScale2)
+				    .orient("bottom");
+
+				var yAxis2 = d3.svg.axis()
+				    .scale(yScale2)
+				    .orient("left");
+				               
+
+				//Create an svg variable for chart 1
 
 				var svg = d3.select("body")
 				.append("svg")
@@ -161,7 +210,7 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 				
 
 
-				//reference svg to create bars
+				//reference svg to create bars for chart 1
 
 				svg.selectAll("rect")
 				.data(dataset)
@@ -197,6 +246,44 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 					.attr("transform", "translate(" + barPadding + ",0)")
 					.call(yAxis);
 
+	// Create second SVG
+
+	var chart = d3.select("body")
+	.append ("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  	.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  
+
+  chart.append("g")
+      .attr("class", "x axis2")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis2);
+
+  chart.append( "g")
+      .attr("class", "y axis2")
+      .call(yAxis2);
+
+  chart.selectAll(".bar")
+      .data(dataset)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return xScale2(d[xcol]); })
+      .attr("y", function(d) { return yScale2(math.mean(d[ycol])); })
+      .attr("height", function(d) { return height - yScale2(math.mean(d[ycol])); })
+      .attr("width", xScale2.rangeBand())
+      .attr("fill", function(d){ return colors[d[xcol]]});
+;
+
+
+function type(d) {
+  d[ycol] = +d[ycol]; // coerce to number
+  return d;
+}
+
 				function update_axes() {
 					 d3.selectAll("li")
 					 	.style("color", "black");
@@ -211,10 +298,14 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 				function redraw_plot() {
 					//console.log("redrawing plot: ", + xcol, ", " + ycol);
 					//Update scale domains
+					//Chart 1
 					xScale.domain([0, function(d) { return dataset.length}]);
 					yScale.domain([0, 100]);//d3.max(dataset, function(d) { return d[ycol]; })]);
+					//Chart 2
+					xScale2.domain(data.map(function(d) { return d[xcol]; }));
+  					yScale2.domain([0, 100]);
 
-					//Update all bars
+					//Update all bars for chart 1
 					svg.selectAll("rect")
 					   .data(dataset)
 					   .transition()
@@ -235,17 +326,43 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 						return yScale(d[ycol]);
 				})
 
-					//Update X axis
+					//update all bars for chart 2
+
+					chart.selectAll(".bar")
+      					.data(dataset)
+    					.transition()
+					   	.duration(1000)
+     				 	.attr("class", "bar")
+      					.attr("x", function(d) { return xScale2(d[xcol]); })
+      					.attr("y", function(d) { return yScale2(math.mean(d[ycol])); })
+      					.attr("height", function(d) { return height - yScale2(math.mean(d[ycol])); })
+      					.attr("width", xScale2.rangeBand())
+      					.attr("fill", function(d){ return colors[d[xcol]]});
+
+					//Update X axis 1
 					svg.select(".x.axis")
 				    	.transition()
 				    	.duration(1000)
 						.call(xAxis);
 					
-					//Update Y axis
+					//Update Y axis 1
 					svg.select(".y.axis")
 				    	.transition()
 				    	.duration(1000)
 						.call(yAxis);
+
+					//Update X axis 2
+
+					svg.select(".x.axis2")
+				    	.transition()
+				    	.duration(1000)
+						.call(xAxis2);
+					
+					//Update Y axis 2
+					svg.select(".y.axis2")
+				    	.transition()
+				    	.duration(1000)
+						.call(yAxis2);
 					};
 				
 
@@ -268,10 +385,15 @@ var colors = {"Cage":"red", "Open":"blue", "Fence": "green", "Roof":"orange", "E
 
 					});
 
+
+
+
 				 console.log(dataset);   //Log the data.
 				
 
 					});
+
+
 		</script>
 	</body>
 </html>
